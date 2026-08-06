@@ -22,4 +22,3 @@ def drop_all(engine: Engine, Base: DeclarativeMeta):
     """ Drop all tables """
     Base.metadata.drop_all(bind=engine)
 
-

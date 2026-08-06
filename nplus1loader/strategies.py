@@ -36,8 +36,8 @@ from .bulk_load import bulk_load_attribute_for_instance_states
 class NPlusOneLazyColumnLoader(LoaderStrategy):
     """ Lazy loader for the N+1 situation """
 
-    def create_row_processor(self, context: QueryContext, path: AbstractEntityRegistry, loadopt: Load, mapper: Mapper,
-                             result: ResultProxy, adapter, populators: Mapping[str, list]):
+    def create_row_processor(self, context: QueryContext, query_entity, path: AbstractEntityRegistry, loadopt: Load,
+                             mapper: Mapper, result: ResultProxy, adapter, populators: Mapping[str, list]):
         # This method prepares the `populators` dict
         # It's undocumented in SqlAlchemy, but it seems like that's where you store callables
         # that handle the loading of deferred attributes.
@@ -81,7 +81,7 @@ class NPlusOneLazyColumnLoader(LoaderStrategy):
         # Log
         if self._should_log_info:
             states = list(states)
-            self.logger.warn(
+            self.logger.warning(
                 "%s.%s: N+1 loading of %s instances",
                 mapper.class_.__name__,
                 self.key,
@@ -136,8 +136,8 @@ class NPlusOneLazyColumnLoader(LoaderStrategy):
 class RaiseLoader(LoaderStrategy):
     """ Raise Lazy loader """
 
-    def create_row_processor(self, context: QueryContext, path: AbstractEntityRegistry, loadopt: Load, mapper: Mapper,
-                             result: ResultProxy, adapter, populators: Mapping[str, list]):
+    def create_row_processor(self, context: QueryContext, query_entity, path: AbstractEntityRegistry, loadopt: Load,
+                             mapper: Mapper, result: ResultProxy, adapter, populators: Mapping[str, list]):
         set_lazy_callable = (
             InstanceState._instance_level_callable_processor
         )(mapper.class_manager, self._raise_lazy_loading, self.key)
