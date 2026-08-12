@@ -20,19 +20,19 @@ setup(
     scripts=[],
     entry_points={},
 
-    python_requires='>= 3.6',
+    python_requires='>= 3.14',
     install_requires=[
-        'sqlalchemy >= 1.3.0',
+        'sqlalchemy >= 1.4.54, < 2.0',
         'funcy',
     ],
     extras_require={},
     include_package_data=True,
-    test_suite='nose.collector',
-
     platforms='any',
     classifiers=[
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.14',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',

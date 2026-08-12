@@ -71,7 +71,11 @@ def _bulk_load_column_for_instance_states(session: Session, mapper: Mapper,
         q = alter_query(q, mapper, attr_name, False)
 
     # Having the missing attribute's value loaded, assign it to every instance in the session
-    for identity, attr_value in q:
+    pk_count = len(mapper.primary_key)
+    for row in q:
+        identity = tuple(row[:pk_count])
+        attr_value = row[pk_count]
+
         # Build the identity key the way SqlAlchemy likes it:
         # (Model, primary-key, None)
         key = identity_key(Model, identity)
@@ -139,22 +143,17 @@ def load_by_primary_keys(session: Session, mapper: Mapper, identities: Iterable[
 
     Returns:
         A Query.
-        First field "pk": the identity tuple (the primary key)
+        First fields: the identity values (the primary key)
         Other fields: the *entities you wanted loaded
     """
     pk_columns = get_primary_key_columns(mapper)
 
     # Load many instances by their primary keys
     #
-    # First of all, we need to load the primary key, as well as the missing column's value, so it looks like we need
+    # First of all, we need to load the primary key, as well as the missing column's value:
     #       pk_col1, pk_col2, ..., attr_value
-    # But then in Python we would have to slice the list.
-    # But because Postgres supports tuples, we select a tuple of the primary key instead:
-    #       (pk_col1, pk_col2, ...), attr_value
-    # Just two columns, one being a composite primary key.
-    # It perfectly matches SqlAlchemy's instance identity, which is a tuple of primary keys.
     #
-    # Secondly, the primary key condition. We're going to load N intances by their primary keys.
+    # Secondly, the primary key condition. We're going to load N instances by their primary keys.
     # We could have done like this:
     #       WHERE (pk_col1=:val AND pk_col2=:val) OR (pk_col1=:val AND pk_col2=:val) OR ...
     # but once again, tuples are very convenient and readable:
@@ -162,8 +161,8 @@ def load_by_primary_keys(session: Session, mapper: Mapper, identities: Iterable[
     #
     # Thanks for this neat trick, @vdmit11 :)
     return session.query(
-        # That's the primary key tuple
-        tuple_(*pk_columns).label('pk'),
+        # The primary key columns
+        *pk_columns,
         # Additional entities you want to load
         *entities
     ).filter(

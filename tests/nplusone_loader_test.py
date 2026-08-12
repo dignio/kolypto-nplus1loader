@@ -136,7 +136,8 @@ class NPlusOneLoaderPostgresTest(unittest.TestCase):
                 self.assertEqual(ien.history.deleted, ())
 
                 # Trigger a lazyload
-                two.en
+                with ssn.no_autoflush:
+                    two.en
                 self.assertMadeQueries(1)  # one query to load them all
 
                 # Make sure the value's not overwritten
@@ -446,4 +447,3 @@ class NplusOneLoaderMySQLTest(NPlusOneLoaderPostgresTest):
 class NplusOneLoaderSQLiteTest(NPlusOneLoaderPostgresTest):
     """ Test nplus1loader() with SQLite """
     DB_URL = 'sqlite://'
-
