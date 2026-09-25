@@ -20,7 +20,7 @@ setup(
     scripts=[],
     entry_points={},
 
-    python_requires='>= 3.14',
+    python_requires='>= 3.12',
     install_requires=[
         'sqlalchemy >= 1.4.54, < 2.0',
         'funcy',
@@ -32,6 +32,8 @@ setup(
         # https://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3 :: Only',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
         'Programming Language :: Python :: 3.14',
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
