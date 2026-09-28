@@ -22,7 +22,7 @@ setup(
 
     python_requires='>= 3.12',
     install_requires=[
-        'sqlalchemy >= 1.4.54, < 2.0',
+        'sqlalchemy >= 1.3.0, < 2.0',
         'funcy',
     ],
     extras_require={},

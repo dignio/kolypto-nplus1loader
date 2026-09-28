@@ -3,7 +3,6 @@ from functools import partial
 from typing import Iterable, Mapping
 
 from sqlalchemy import log
-from sqlalchemy.engine import ResultProxy
 from sqlalchemy.orm.base import instance_state
 from sqlalchemy.orm.query import QueryContext
 from sqlalchemy.orm.state import InstanceState
@@ -12,13 +11,6 @@ from sqlalchemy.orm.strategy_options import Load
 from sqlalchemy.orm.strategies import LoaderStrategy
 
 from . import loadopt
-
-try:
-    # In sqlalchemy>=1.3.13, it's something else
-    from sqlalchemy.orm.path_registry import AbstractEntityRegistry
-except ImportError:
-    # In sqlalchemy<=1.3.12 it's called an `Entity Registry`
-    from sqlalchemy.orm.path_registry import EntityRegistry as AbstractEntityRegistry
 
 from .exc import LazyLoadingAttributeError
 from .bulk_load import bulk_load_attribute_for_instance_states
@@ -36,8 +28,16 @@ from .bulk_load import bulk_load_attribute_for_instance_states
 class NPlusOneLazyColumnLoader(LoaderStrategy):
     """ Lazy loader for the N+1 situation """
 
-    def create_row_processor(self, context: QueryContext, query_entity, path: AbstractEntityRegistry, loadopt: Load,
-                             mapper: Mapper, result: ResultProxy, adapter, populators: Mapping[str, list]):
+    def create_row_processor(self, context: QueryContext, *args):
+        # The signature differs between SqlAlchemy versions:
+        #   1.3: (context, path, loadopt, mapper, result, adapter, populators)
+        #   1.4: (context, query_entity, path, loadopt, mapper, result, adapter, populators)
+        # The trailing arguments are the same, so we take them from the end
+        loadopt: Load
+        mapper: Mapper
+        populators: Mapping[str, list]
+        *_, loadopt, mapper, result, adapter, populators = args
+
         # This method prepares the `populators` dict
         # It's undocumented in SqlAlchemy, but it seems like that's where you store callables
         # that handle the loading of deferred attributes.
@@ -136,8 +136,12 @@ class NPlusOneLazyColumnLoader(LoaderStrategy):
 class RaiseLoader(LoaderStrategy):
     """ Raise Lazy loader """
 
-    def create_row_processor(self, context: QueryContext, query_entity, path: AbstractEntityRegistry, loadopt: Load,
-                             mapper: Mapper, result: ResultProxy, adapter, populators: Mapping[str, list]):
+    def create_row_processor(self, context: QueryContext, *args):
+        # See NPlusOneLazyColumnLoader.create_row_processor() for the signature differences
+        mapper: Mapper
+        populators: Mapping[str, list]
+        *_, loadopt, mapper, result, adapter, populators = args
+
         set_lazy_callable = (
             InstanceState._instance_level_callable_processor
         )(mapper.class_manager, self._raise_lazy_loading, self.key)
