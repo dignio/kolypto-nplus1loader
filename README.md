@@ -1,5 +1,5 @@
 [![Build Status](https://api.travis-ci.org/kolypto/py-nplusone-loader.png?branch=master)](https://travis-ci.org/kolypto/py-nplusone-loader)
-[![Pythons](https://img.shields.io/badge/python-3.14%2B-blue.svg)](.travis.yml)
+[![Pythons](https://img.shields.io/badge/python-3.12%2B-blue.svg)](tox.ini)
 
 An SqlAlchemy loader that solves the N+1 problem
 
